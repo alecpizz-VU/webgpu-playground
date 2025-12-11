@@ -1,0 +1,183 @@
+.webgpu-root {
+    --bg-1: #0b0f14;
+    --bg-2: #0f1720;
+    --card: rgba(255,255,255,0.03);
+    --muted: rgba(255,255,255,0.55);
+    --accent: #7c6cff;
+    --glass: rgba(255,255,255,0.02);
+    display: flex;
+    flex-direction: column;
+    /* Cover the full viewport to avoid any browser white margin/gutter */
+    position: fixed;
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    padding: clamp(12px, 2.5vh, 28px);
+    box-sizing: border-box;
+    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    color: #e6eef8;
+    font-family: Inter,Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow: auto;
+    z-index: 0;
+}
+
+.webgpu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.webgpu-header .title {
+    font-size: clamp(14px, 2.2vw, 18px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
+}
+
+.webgpu-header .gpu-name {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.webgpu-panel {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: clamp(12px, 2vw, 24px);
+    align-items: start;
+}
+
+/* Canvas area kept visually fixed; canvas element itself is not changed */
+.canvas-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    display: inline-block;
+}
+
+/* Don't change the canvas tag itself; keep any border neutral and minimal */
+canvas {
+    display: block; /* removes inline gap */
+    border-radius: 8px;
+    background: transparent;
+}
+
+.warning {
+    color: #ff9aa2;
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+.controls-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.controls-card {
+    background: linear-gradient(180deg, rgba(124,108,255,0.06), rgba(124,108,255,0.02));
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 160px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.55);
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+.controls-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+}
+
+.muted {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.control-row label {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.control-skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border-radius: 8px;
+    height: 34px;
+    width: 100%;
+    min-width: 80px;
+    border: 1px solid rgba(255,255,255,0.02);
+}
+
+.control-skeleton.short { width: 80px; }
+
+/* Color picker specific styling */
+.color-picker-row .color-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+input[type="color"] {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    width: 40px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Some browsers show a default swatch; hide inner swatch for consistent look */
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border-radius: 6px; }
+
+.color-swatch {
+    width: 28px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.5) inset;
+}
+
+.color-value {
+    color: var(--muted);
+    font-size: 0.85rem;
+    min-width: 72px;
+    text-align: left;
+}
+
+.expander {
+    margin-top: 12px;
+    color: rgba(230,238,248,0.55);
+    font-size: 0.85rem;
+}
+
+/* Responsive: stack controls under canvas on narrow viewports */
+@media (max-width: 880px) {
+    .webgpu-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .controls-area { order: 2; }
+    .canvas-area { order: 1; }
+
+    .controls-card {
+        width: 100%;
+    }
+}

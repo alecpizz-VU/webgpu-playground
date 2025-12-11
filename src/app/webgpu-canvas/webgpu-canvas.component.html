@@ -1,0 +1,105 @@
+<div class="webgpu-root">
+  <header class="webgpu-header">
+    <div class="title">WebGPU Playground</div>
+    <div class="gpu-name">Current found GPU: {{ gpuName || "Unknown GPU" }}</div>
+  </header>
+
+  <main class="webgpu-panel">
+    <section class="canvas-area">
+      <div class="canvas-card">
+        <!-- Canvas element must remain exactly as originally provided -->
+        <canvas #canvas width="800" height="600"></canvas>
+        <div *ngIf="!supported" class="warning">
+          WebGPU not supported in this browser!
+        </div>
+      </div>
+    </section>
+
+    <aside class="controls-area">
+      <div class="controls-card">
+        <h3>Controls</h3>
+
+        <div class="control-row color-picker-row">
+          <label for="bgColor">Background Color</label>
+          <div class="color-controls">
+            <input
+              id="bgColor"
+              type="color"
+              [value]="backgroundColor"
+              (input)="updateBackgroundColor($any($event.target).value)"
+            />
+            <div class="color-value">{{ backgroundColor }}</div>
+          </div>
+        </div>
+        <div class="control-row">
+          <label>Rotation Speed</label>
+          <div>
+            <input
+              id="rotate-speed"
+              type="range"
+              min="0"
+              max="5"
+              step="0.1"
+              [value]="rotationSpeed"
+              (input)="updateRotationSpeed($any($event.target).value)"
+            />
+          </div>
+        </div>
+
+        <hr />
+        <h4>Point Sprites</h4>
+        <div class="control-row color-picker-row">
+          <label for="ptColor">Point Color</label>
+          <div class="color-controls">
+            <input
+              id="ptColor"
+              type="color"
+              [value]="pointColor"
+              (input)="updatePointColor($any($event.target).value)"
+            />
+            <div class="color-value">{{ pointColor }}</div>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label for="ptAlpha">Point Alpha</label>
+          <input
+            id="ptAlpha"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            [value]="pointAlpha"
+            (input)="updatePointAlpha(+$any($event.target).value)"
+          />
+        </div>
+
+        <div class="control-row">
+          <label for="ptSize">Size Scale</label>
+          <input
+            id="ptSize"
+            type="range"
+            min="0.1"
+            max="5"
+            step="0.1"
+            [value]="pointSizeScale"
+            (input)="updatePointSizeScale(+$any($event.target).value)"
+          />
+        </div>
+
+        <div class="control-row">
+          <label for="ptEdge">Edge Softness</label>
+          <input
+            id="ptEdge"
+            type="range"
+            min="0"
+            max="0.2"
+            step="0.001"
+            [value]="pointEdge"
+            (input)="updatePointEdge(+$any($event.target).value)"
+          />
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>

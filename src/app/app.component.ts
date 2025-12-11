@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { WebgpuCanvasComponent } from "./webgpu-canvas/webgpu-canvas.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [],
+  imports: [WebgpuCanvasComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
