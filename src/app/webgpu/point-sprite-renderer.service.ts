@@ -119,6 +119,31 @@ export class PointSpriteRendererService {
     this.initalized = true;
   }
 
+  resizeParticleBuffer(instanceCount: number): void {
+    const device = this.webGpuContextService.getDevice();
+    const context = this.webGpuContextService.getContext();
+    if (!device || !context || !this.pipeline || !this.uniformBuffer) {
+      return;
+    }
+
+    this.instanceCapacity = instanceCount;
+    const particleBuffer = device.createBuffer({
+      size: instanceCount * ParticleLayoutV1.STRIDE * 4,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    });
+
+    const bindGroup = device.createBindGroup({
+      layout: this.pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this.uniformBuffer } },
+        { binding: 1, resource: { buffer: particleBuffer } },
+      ],
+    });
+
+    this.particleBuffer = particleBuffer;
+    this.bindGroup = bindGroup;
+  }
+
   draw(renderPass: GPURenderPassEncoder, instanceCount: number) {
     if (this.bindGroup) {
       renderPass.setBindGroup(0, this.bindGroup);
@@ -203,5 +228,13 @@ export class PointSpriteRendererService {
     if (!device || !this.uniformBuffer) return;
     this.uniforms.setZoom(z);
     this.uniforms.writeZoom(device, this.uniformBuffer);
+  }
+
+  getViewCenter(): { x: number; y: number } {
+    return this.viewCenter;
+  }
+
+  getZoom(): number {
+    return this.zoom;
   }
 }
