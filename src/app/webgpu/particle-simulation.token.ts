@@ -5,6 +5,7 @@ export interface ParticleSimulationServiceInterface {
   initialize(count?: number): void;
   getParticles(): ParticleArrayV1 | undefined;
   getInstanceCount(): number;
+  setStorageBuffer(buffer: GPUBuffer, capacity: number): void;
   setMouseTarget(x: number, y: number, hover: boolean): void;
   step(dt: number): void;
   setBaseAttract(value: number): void;

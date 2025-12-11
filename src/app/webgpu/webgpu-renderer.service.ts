@@ -13,6 +13,8 @@ export class WebgpuRendererService {
   private rotateSpeed : number = 1.0;
   private mousePosPixels: { x: number; y: number } | null = null;
   private mouseOver: boolean = false;
+  private basePointAlpha: number = 1.0;
+  private basePointSizeScale: number = 1.0;
   constructor(
     private webGpuContextService: WebgpuContextService,
     private renderSettingsService: RenderSettingsService,
@@ -24,6 +26,11 @@ export class WebgpuRendererService {
   async initializeScene(particleCount: number) {
     this.simService.initialize(particleCount);
     await this.pointRendererService.initialize(this.simService.getInstanceCount());
+    const particleBuffer = this.pointRendererService.getParticleBuffer();
+    const capacity = this.pointRendererService.getInstanceCapacity();
+    if (particleBuffer) {
+      this.simService.setStorageBuffer(particleBuffer, capacity);
+    }
     const particles = this.simService.getParticles();
     if (particles) {
       this.pointRendererService.uploadParticlesFromCPU(particles);
@@ -101,15 +108,22 @@ export class WebgpuRendererService {
   setParticleCount(count: number): void {
     this.simService.initialize(count);
     this.pointRendererService.resizeParticleBuffer(this.simService.getInstanceCount());
+    const particleBuffer = this.pointRendererService.getParticleBuffer();
+    const capacity = this.pointRendererService.getInstanceCapacity();
+    if (particleBuffer) {
+      this.simService.setStorageBuffer(particleBuffer, capacity);
+    }
     const particles = this.simService.getParticles();
     if (particles) {
       this.pointRendererService.uploadParticlesFromCPU(particles);
     }
+    this.updateEffectivePointAlpha();
   }
 
   // Forwarders for point-sprite controls
   setPointSizeScale(scale: number): void {
-    this.pointRendererService.setPointSizeScale(scale);
+    this.basePointSizeScale = scale;
+    this.updateEffectivePointAlpha();
   }
 
   setPointEdge(edge: number): void {
@@ -121,7 +135,8 @@ export class WebgpuRendererService {
   }
 
   setPointAlpha(a: number): void {
-    this.pointRendererService.setPointAlpha(a);
+    this.basePointAlpha = a;
+    this.updateEffectivePointAlpha();
   }
 
   // Forwarders for simulation controls
@@ -147,5 +162,26 @@ export class WebgpuRendererService {
 
   setAttractionSmoothing(seconds: number): void {
     this.simService.setAttractionSmoothing(seconds);
+  }
+
+  private updateEffectivePointAlpha(): void {
+    const count = this.simService.getInstanceCount();
+    const referenceCount = 10000;
+    const minFactor = 0.1;
+    let factor = 1.0;
+
+    if (count > referenceCount) {
+      const ratio = referenceCount / count;
+      const gamma = 0.5;
+      factor = Math.pow(ratio, gamma);
+      if (factor < minFactor) {
+        factor = minFactor;
+      }
+    }
+
+    const effectiveAlpha = Math.max(0, Math.min(1, this.basePointAlpha * factor));
+    const effectiveSizeScale = this.basePointSizeScale * factor;
+    this.pointRendererService.setPointAlpha(effectiveAlpha);
+    this.pointRendererService.setPointSizeScale(effectiveSizeScale);
   }
 }

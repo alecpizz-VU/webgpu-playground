@@ -20,8 +20,8 @@ export class WebgpuCanvasComponent implements AfterViewInit {
   backgroundColor = '#00000';
   rotationSpeed = 1.0;
   // Point sprite controls
-  pointColor = '#ffffff';
-  pointAlpha = 0.65;
+  pointColor = '#13816b';
+  pointAlpha = 1.0;
   pointSizeScale = 1.0;
   pointEdge = 0.0;
   // Simulation controls

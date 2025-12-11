@@ -144,6 +144,14 @@ export class PointSpriteRendererService {
     this.bindGroup = bindGroup;
   }
 
+  getParticleBuffer(): GPUBuffer | undefined {
+    return this.particleBuffer;
+  }
+
+  getInstanceCapacity(): number {
+    return this.instanceCapacity;
+  }
+
   draw(renderPass: GPURenderPassEncoder, instanceCount: number) {
     if (this.bindGroup) {
       renderPass.setBindGroup(0, this.bindGroup);

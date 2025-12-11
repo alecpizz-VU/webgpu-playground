@@ -74,7 +74,9 @@ fn fs_main(in: FSIn)
     let r = length(trailUv);
     let aa = fwidth(r);
     let e = max(uni.edge, aa);
-    let mask = 1.0 - smoothstep(1.0 - e, 1.0 + e, r);
+    let maskBase = 1.0 - smoothstep(1.0 - e, 1.0 + e, r);
+    // Slightly sharpen the mask so particles remain more distinct when many overlap
+    let mask = pow(maskBase, 1.5);
 
     // Premultiplied output (matches pipeline blending: one/one-minus-src-alpha)
     let alpha = mask * uni.color.a;

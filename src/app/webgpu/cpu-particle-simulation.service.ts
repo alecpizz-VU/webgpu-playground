@@ -44,6 +44,10 @@ export class CpuParticleSimulationService
     return this.count;
   }
 
+  setStorageBuffer(_buffer: GPUBuffer, _capacity: number): void {
+    // CPU simulation does not use the GPU storage buffer directly.
+  }
+
   setMouseTarget(x: number, y: number, hover: boolean): void {
     if (!this.mouseTarget) {
       this.mouseTarget = vec2.fromValues(x, y);
