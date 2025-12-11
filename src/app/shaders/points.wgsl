@@ -1,7 +1,10 @@
 struct Particle {
     pos: vec2f,
+    vel: vec2f,
     size: f32,
     angle: f32,
+    angVel: f32,
+    _pad: f32,
 }
 
 struct Uniforms {

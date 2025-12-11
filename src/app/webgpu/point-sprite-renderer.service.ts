@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { WebgpuContextService } from './webgpu-context.service';
 import { ShaderLibraryService } from './shader-library.service';
 import { PointSpriteUniforms } from './point-sprite-uniforms';
-import { ParticleArrayV1 } from './particle-array-v1';
+import { ParticleArrayV1, ParticleLayoutV1 } from './particle-array-v1';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +11,7 @@ export class PointSpriteRendererService {
   private pipeline?: GPURenderPipeline;
   private particleBuffer?: GPUBuffer;
   private initalized: boolean = false;
-  private numPoints: number = 128;
+  private instanceCapacity: number = 0;
   private uniformBuffer?: GPUBuffer;
   private uniforms = new PointSpriteUniforms();
   private bindGroup?: GPUBindGroup;
@@ -32,7 +32,7 @@ export class PointSpriteRendererService {
     private shaderLibraryService: ShaderLibraryService
   ) {}
 
-  async initialize(): Promise<void> {
+  async initialize(instanceCount: number): Promise<void> {
     if (this.initalized) {
       return;
     }
@@ -44,13 +44,11 @@ export class PointSpriteRendererService {
       return;
     }
 
-    const particles = ParticleArrayV1.createRandom(this.numPoints);
+    this.instanceCapacity = instanceCount;
     const particleBuffer = device.createBuffer({
-      size: particles.data.byteLength,
+      size: instanceCount * ParticleLayoutV1.STRIDE * 4,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
-
-    device.queue.writeBuffer(particleBuffer, 0, particles.data);
 
     const shaderModule = device.createShaderModule({
       code: this.shaderLibraryService.getShaderSource('points'),
@@ -121,15 +119,21 @@ export class PointSpriteRendererService {
     this.initalized = true;
   }
 
-  draw(renderPass: GPURenderPassEncoder) {
+  draw(renderPass: GPURenderPassEncoder, instanceCount: number) {
     if (this.bindGroup) {
       renderPass.setBindGroup(0, this.bindGroup);
     }
     if (this.pipeline) {
       renderPass.setPipeline(this.pipeline);
       renderPass.setBindGroup(0, this.bindGroup);
-      renderPass.draw(6, this.numPoints, 0, 0);
+      renderPass.draw(6, instanceCount, 0, 0);
     }
+  }
+
+  uploadParticlesFromCPU(particles: ParticleArrayV1): void {
+    const device = this.webGpuContextService.getDevice();
+    if (!device || !this.particleBuffer) return;
+    device.queue.writeBuffer(this.particleBuffer, 0, particles.data as any);
   }
 
   updateResolutionFromContext() {

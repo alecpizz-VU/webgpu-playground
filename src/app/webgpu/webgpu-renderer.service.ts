@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { WebgpuContextService } from './webgpu-context.service';
 import { RenderSettingsService } from './render-settings.service';
-import { TriangleRendererService } from './triangle-renderer.service';
 import { PointSpriteRendererService } from './point-sprite-renderer.service';
+import { CpuParticleSimulationService } from './cpu-particle-simulation.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -11,11 +11,17 @@ export class WebgpuRendererService {
   constructor(
     private webGpuContextService: WebgpuContextService,
     private renderSettingsService: RenderSettingsService,
-    private pointRendererService: PointSpriteRendererService
+    private pointRendererService: PointSpriteRendererService,
+    private cpuSimService: CpuParticleSimulationService
   ) {}
 
   async initializeScene() {
-    await this.pointRendererService.initialize();
+    this.cpuSimService.initialize();
+    await this.pointRendererService.initialize(this.cpuSimService.getInstanceCount());
+    const particles = this.cpuSimService.getParticles();
+    if (particles) {
+      this.pointRendererService.uploadParticlesFromCPU(particles);
+    }
   }
 
   renderFrame(dt: number, time: number) {
@@ -23,6 +29,12 @@ export class WebgpuRendererService {
     const context = this.webGpuContextService.getContext();
     if (!device || !context) {
       return;
+    }
+
+    this.cpuSimService.step(dt * 0.001);
+    const particles = this.cpuSimService.getParticles();
+    if (particles) {
+      this.pointRendererService.uploadParticlesFromCPU(particles);
     }
 
     // Keep point-sprite resolution in sync with canvas size
@@ -41,7 +53,8 @@ export class WebgpuRendererService {
       ],
     });
 
-    this.pointRendererService.draw(renderPass);
+    const instanceCount = this.cpuSimService.getInstanceCount();
+    this.pointRendererService.draw(renderPass, instanceCount);
     renderPass.end();
     device.queue.submit([commandEncoder.finish()]);
   }
